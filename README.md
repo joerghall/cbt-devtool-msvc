@@ -1,0 +1,2 @@
+# Generate standalone msvc packages 
+
