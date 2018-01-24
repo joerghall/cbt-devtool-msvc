@@ -85,59 +85,16 @@ string(SUBSTRING ${VERSION_HASH} 0 8 VERSION_SHORTHASH)
 ## Package specifics
 ##
 set(PACKAGE_VERSION 7.2.0)
-set(PACKAGE_NAME msvc)
-if (BUILD_LINUX)
-    set(PACKAGE_PLATFORM windows)
-else()
-    set(PACKAGE_PLATFORM ${BUILD_OS})
-endif()
+set(PACKAGE_NAME msvc-cl)
+set(PACKAGE_PLATFORM windows)
+
 set(PACKAGE_VERSION_PACKAGE ${PACKAGE_VERSION}.${VERSION_REVISION}.r${VERSION_SHORTHASH})
 set(PACKAGE_INSTALL_DIR ${SOURCE_SRC_DIR}/${PACKAGE_NAME}/${PACKAGE_VERSION_PACKAGE}/${PACKAGE_PLATFORM})
 
-add_custom_target(download_source
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${SOURCE_DOWNLOAD_DIR}
-    COMMAND svn export -q --force svn://gcc.gnu.org/svn/gcc/tags/gcc_7_2_0_release ${SOURCE_DOWNLOAD_DIR}/${PACKAGE_NAME}
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-)
-
-add_custom_target(download_contrib
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${SOURCE_DOWNLOAD_DIR}
-    COMMAND bash contrib/download_prerequisites
-    WORKING_DIRECTORY ${SOURCE_DOWNLOAD_DIR}/${PACKAGE_NAME}
-    DEPENDS download_source
-)
-
 add_custom_target(package_build
-    COMMAND ./configure
-            --build=x86_64-unknown-linux
-            --disable-libgcj
-            --disable-libunwind-exceptions
-            --enable-__cxa_atexit
-            --enable-bootstrap
-            --enable-checking=release
-            --enable-gnu-indirect-function
-            --enable-gnu-unique-object
-            --enable-initfini-array
-            --enable-languages=c,c++,objc,obj-c++,fortran,lto
-            --enable-libmpx
-            --enable-linker-build-id
-            --enable-lto
-            --enable-multilib
-            --enable-plugin
-            --enable-shared
-            --enable-threads=posix
-            --prefix=${PACKAGE_INSTALL_DIR}
-            --with-arch_32=i686
-            --with-bugurl=http://bugzilla.redhat.com/bugzilla
-            --with-default-libstdcxx-abi=gcc4-compatible
-            --with-isl
-            --with-linker-hash-style=gnu
-            --with-system-zlib
-            --with-tune=generic
-    COMMAND COMMAND ${CMAKE_COMMAND} -E env MAKEFLAGS= MAKEOVERRIDES= MAKELEVEL= MFLAGS= make -j${N}  2>&1 | tee ${CMAKE_BINARY_DIR}/package_build.log | rev | cut -c -80 | rev
-    COMMAND COMMAND ${CMAKE_COMMAND} -E env MAKEFLAGS= MAKEOVERRIDES= MAKELEVEL= MFLAGS= make -j${N} install  2>&1 | tee ${CMAKE_BINARY_DIR}/package_install.log | rev | cut -c -80 | rev
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${SOURCE_DOWNLOAD_DIR}
+    COMMAND copy /R "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Enterprise\\VC\\Tools\\MSVC" ${PACKAGE_INSTALL_DIR}
     WORKING_DIRECTORY ${SOURCE_DOWNLOAD_DIR}/${PACKAGE_NAME}
-    DEPENDS download_contrib
 )
 
 add_custom_target(package_tar
